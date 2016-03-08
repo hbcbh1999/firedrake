@@ -154,7 +154,6 @@ def compile_coordinate_element(ufl_coordinate_element):
     from tsfc.constants import PRECISION
     from tsfc.fiatinterface import create_element
     from firedrake.pointeval_utils import ssa_arrays, c_print
-    from FIAT.reference_element import TensorProductCell as two_product_cell
     import sympy as sp
     import numpy as np
 
@@ -248,7 +247,7 @@ def compile_coordinate_element(ufl_coordinate_element):
     cell = ufl_coordinate_element.cell()
 
     # calculate_basisvalues, vdim = calculate_basisvalues(cell, element)
-    extruded = isinstance(element.get_reference_element(), two_product_cell)
+    extruded = isinstance(ufl_coordinate_element.cell(), TensorProductCell)
 
     code = {
         "geometric_dimension": cell.geometric_dimension(),

@@ -138,7 +138,7 @@ class FunctionSpace(object):
         super(FunctionSpace, self).__init__()
         if type(element) is ufl.MixedElement:
             raise ValueError("Can't create FunctionSpace for MixedElement")
-        fiat_element = create_element(element, vector_is_mixed=False)
+        fiat_element = create_element(element, vector_is_mixed=False, patch_quads=True)
         sdata = get_shared_data(mesh, fiat_element)
         # The function space shape is the number of dofs per node,
         # hence it is not always the value_shape.  Vector and Tensor

@@ -125,7 +125,7 @@ def compile_element(ufl_element, cdim):
     from tsfc.constants import PRECISION
     from firedrake.pointquery_utils import set_float_formatting, format
     from tsfc.fiatinterface import create_element
-    from FIAT.reference_element import TensorProductCell as two_product_cell
+    from ufl import TensorProductCell
     import sympy as sp
     import numpy as np
 
@@ -195,7 +195,7 @@ def compile_element(ufl_element, cdim):
     cell = ufl_element.cell()
 
     calculate_basisvalues, vdim = calculate_basisvalues(cell, element)
-    extruded = isinstance(element.get_reference_element(), two_product_cell)
+    extruded = isinstance(ufl_element.cell(), TensorProductCell)
 
     code = {
         "cdim": cdim,
