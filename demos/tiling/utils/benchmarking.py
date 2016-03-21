@@ -135,9 +135,9 @@ def output_time(start, end, **kwargs):
                 return s.replace(' ', '')
     if MPI.comm.rank == 0 and tofile:
         name = os.path.splitext(os.path.basename(sys.argv[0]))[0]  # Cut away the extension
-        platform = platform.node().split('.')[0]
+        platformname = platform.node().split('.')[0]
         for version in versions:
-            filename = os.path.join(output_dir, "times", platform, name, "poly_%d" % poly_order, domain,
+            filename = os.path.join(output_dir, "times", platformname, name, "poly_%d" % poly_order, domain,
                                     "ndofs_%d" % ndofs, version, "np%d_nt%d.txt" % (num_procs, num_threads))
             # Create directory and file (if not exist)
             if not os.path.exists(os.path.dirname(filename)):
