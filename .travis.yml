@@ -29,6 +29,7 @@ os:
     - osx
 # Separate cache directories for OSX and Linux
 cache:
+  pip: true
   directories:
     - $HOME/cached_dependencies_$TRAVIS_OS_NAME
 env:
