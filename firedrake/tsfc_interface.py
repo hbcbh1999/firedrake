@@ -8,11 +8,12 @@ import tempfile
 import numpy
 import collections
 
+import ufl
 from ufl import Form, as_vector
 from ufl.corealg.map_dag import MultiFunction
 from ufl.algorithms.map_integrands import map_integrand_dags
 from ufl.constantvalue import Zero
-from firedrake.ufl_expr import Argument
+from firedrake.ufl_expr import Argument, TestFunction
 
 from tsfc import compile_form as tsfc_compile_form
 
@@ -162,6 +163,7 @@ class TSFCKernel(DiskCached):
         if self._initialized:
             return
 
+        form = self._real_mangle(form)
         tree = tsfc_compile_form(form, prefix=name, parameters=parameters)
         kernels = []
         for kernel in tree:
@@ -178,6 +180,23 @@ class TSFCKernel(DiskCached):
                                       coefficient_map=numbers))
         self.kernels = tuple(kernels)
         self._initialized = True
+
+    @staticmethod
+    def _real_mangle(form):
+        """If the form contains arguments in the Real function space, replace these with literal 1 before passing to ffc."""
+
+        a = form.arguments()
+        reals = map(lambda x: x.element().family() == "Real", a)
+        if not a or not any(reals):
+            return form
+        replacements = {}
+        for arg, r in zip(a, reals):
+            if r:
+                replacements[arg] = 1
+        # If only the test space is Real, we need to turn the trial function into a test function.
+        if reals == [True, False]:
+            replacements[a[1]] = TestFunction(a[1].function_space())
+        return ufl.replace(form, replacements)
 
 
 SplitKernel = collections.namedtuple("SplitKernel", ["indices",
