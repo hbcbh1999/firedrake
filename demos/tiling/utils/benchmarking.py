@@ -105,7 +105,7 @@ def output_time(start, end, **kwargs):
     ndofs = 0
     if fs:
         total_dofs = np.zeros(1, dtype=int)
-        MPI.comm.Allreduce(np.array([fs.dof_dset.size], dtype=int), total_dofs)
+        MPI.comm.Allreduce(np.array([fs.dof_count], dtype=int), total_dofs)
         ndofs = total_dofs
 
     # Adjust /tile_size/ and /version/ based on the problem that was actually run
@@ -133,8 +133,9 @@ def output_time(start, end, **kwargs):
         name = os.path.splitext(os.path.basename(sys.argv[0]))[0]  # Cut away the extension
         platformname = platform.node().split('.')[0]
         for version in versions:
-            filename = os.path.join(output_dir, "times", platformname, name, "poly_%d" % poly_order, domain,
-                                    "ndofs_%d" % ndofs, version, "np%d_nt%d.txt" % (num_procs, num_threads))
+            filename = os.path.join(output_dir, "times", name, "poly_%d" % poly_order, domain,
+                                    "ndofs_%d" % ndofs, version, platformname,
+                                    "np%d_nt%d.txt" % (num_procs, num_threads))
             # Create directory and file (if not exist)
             if not os.path.exists(os.path.dirname(filename)):
                 os.makedirs(os.path.dirname(filename))
@@ -159,7 +160,9 @@ def output_time(start, end, **kwargs):
         print "Num procs:", num_procs
         for i in range(num_procs):
             if MPI.comm.rank == i:
+                print "PRINTING SUMMARY FOR RANK", i
                 summary()
+                sys.stdout.flush()
             MPI.comm.barrier()
 
 
@@ -229,7 +232,7 @@ def plot():
     for problem, experiments in toplot:
         # Get info out of the problem name
         info = problem.split('/')
-        name, poly, mesh, ndofs, version = info[1:6]
+        name, poly, mesh, ndofs, version = info[0:5]
         # Format
         poly = int(poly.split('_')[-1])
         mesh = "%s_%s" % (mesh, ndofs)
